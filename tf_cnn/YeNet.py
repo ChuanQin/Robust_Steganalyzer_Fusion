@@ -2,11 +2,12 @@ import tensorflow as tf
 # from functools import partial
 from tensorflow.contrib import layers
 from tensorflow.contrib.framework import add_arg_scope, arg_scope, arg_scoped_arguments
-import layers as my_layers
-from utils import Model
+# import ye_layers as my_layers
+from .ye_layers import conv2d
+from .utils import Model
 import numpy as np
 
-SRM_Kernels = np.load('SRM_Kernels.npy')
+SRM_Kernels = np.load('./tf_cnn/SRM_Kernels.npy')
 
 class YeNet(Model):
   # DEFAULT: data_format='NCHW'
@@ -37,7 +38,7 @@ class YeNet(Model):
                               -self.tlu_threshold, self.tlu_threshold, \
                               name='TLU'))
             with tf.variable_scope('ConvNetwork', reuse = tf.AUTO_REUSE):
-                with arg_scope([my_layers.conv2d], num_outputs=30, \
+                with arg_scope([conv2d], num_outputs=30, \
                         kernel_size=3, stride=1, padding='VALID', \
                         data_format=self.data_format, \
                         activation_fn=tf.nn.relu, \
@@ -51,17 +52,17 @@ class YeNet(Model):
                     if self.with_bn:
                         self.L.append(layers.batch_norm(self.L[-1], \
                                       scope='Norm1'))
-                    self.L.append(my_layers.conv2d(self.L[-1], \
+                    self.L.append(conv2d(self.L[-1], \
                                   scope='Layer2'))
                     if self.with_bn:
                         self.L.append(layers.batch_norm(self.L[-1], \
                                       scope='Norm2'))
-                    self.L.append(my_layers.conv2d(self.L[-1], \
+                    self.L.append(conv2d(self.L[-1], \
                                   scope='Layer3'))
                     if self.with_bn:
                         self.L.append(layers.batch_norm(self.L[-1], \
                                       scope='Norm3'))
-                    self.L.append(my_layers.conv2d(self.L[-1], \
+                    self.L.append(conv2d(self.L[-1], \
                                   scope='Layer4'))
                     if self.with_bn:
                         self.L.append(layers.batch_norm(self.L[-1], \
@@ -69,9 +70,9 @@ class YeNet(Model):
                     # the correction before is successful, but default avgpoolingop only supports NHWC on CPU
                     self.L.append(layers.avg_pool2d(self.L[-1], \
                                   kernel_size=[2,2], scope='Stride1'))
-                    with arg_scope([my_layers.conv2d], kernel_size=5, \
+                    with arg_scope([conv2d], kernel_size=5, \
                                    num_outputs=32):
-                        self.L.append(my_layers.conv2d(self.L[-1], \
+                        self.L.append(conv2d(self.L[-1], \
                                       scope='Layer5'))
                         if self.with_bn:
                             self.L.append(layers.batch_norm(self.L[-1], \
@@ -79,7 +80,7 @@ class YeNet(Model):
                         self.L.append(layers.avg_pool2d(self.L[-1], \
                                       kernel_size=[3,3], \
                                       scope='Stride2'))
-                        self.L.append(my_layers.conv2d(self.L[-1], \
+                        self.L.append(conv2d(self.L[-1], \
                                       scope='Layer6'))
                         if self.with_bn:
                             self.L.append(layers.batch_norm(self.L[-1], \
@@ -87,7 +88,7 @@ class YeNet(Model):
                         self.L.append(layers.avg_pool2d(self.L[-1], \
                                       kernel_size=[3,3], \
                                       scope='Stride3'))
-                        self.L.append(my_layers.conv2d(self.L[-1], \
+                        self.L.append(conv2d(self.L[-1], \
                                       scope='Layer7'))
                         if self.with_bn:
                             self.L.append(layers.batch_norm(self.L[-1], \
@@ -95,13 +96,13 @@ class YeNet(Model):
                     self.L.append(layers.avg_pool2d(self.L[-1], \
                                   kernel_size=[3,3], \
                                   scope='Stride4'))
-                    self.L.append(my_layers.conv2d(self.L[-1], \
+                    self.L.append(conv2d(self.L[-1], \
                                   num_outputs=16, \
                                   scope='Layer8'))
                     if self.with_bn:
                         self.L.append(layers.batch_norm(self.L[-1], \
                                       scope='Norm8'))
-                    # self.L.append(my_layers.conv2d(self.L[-1], \
+                    # self.L.append(conv2d(self.L[-1], \
                     #               num_outputs=16, stride=3, \
                     #               scope='Layer9'))
                     with tf.variable_scope('Layer9', reuse = tf.AUTO_REUSE):

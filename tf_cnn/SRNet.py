@@ -1,21 +1,18 @@
 import tensorflow as tf
-# from functools import partial
 from tensorflow.contrib import layers
 from tensorflow.contrib.framework import arg_scope
 import functools
 import os
-# from skimage.io import imsave
-from utils import Model
+from .utils import Model
 
 class SRNet(Model):
-    def _build_model(self, inputs):
-        self.inputs = inputs
+    def _build_model(self):
         if self.data_format == 'NCHW':
             reduction_axis = [2,3]
-            _inputs = tf.cast(tf.transpose(inputs, [0, 3, 1, 2]), tf.float32)
+            _inputs = tf.cast(tf.transpose(self.x_input, [0, 3, 1, 2]), tf.float32)
         else:
             reduction_axis = [1,2]
-            _inputs = tf.cast(inputs, tf.float32)
+            _inputs = tf.cast(self.x_input, tf.float32)
         self.L = []
         with arg_scope([layers.conv2d], num_outputs=16,
                        kernel_size=3, stride=1, padding='SAME',

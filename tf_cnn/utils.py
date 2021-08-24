@@ -6,7 +6,9 @@ import os
 class Model:
     def __init__(self, 
                  is_training=None, 
-                 data_format='NCHW'):
+                 data_format='NCHW',
+                 img_size = 256,
+                 color = False):
         self.data_format = data_format
         if is_training is None:
             self.is_training = tf.get_variable('is_training', dtype=tf.bool, \
@@ -14,6 +16,13 @@ class Model:
                                     trainable=False)
         else:
             self.is_training = is_training
+        self.color = color
+        self.img_size = img_size
+        if self.color:
+            self.x_input = tf.placeholder(tf.float32, shape=[None, self.img_size, self.img_size, 3])
+        else:
+            self.x_input = tf.placeholder(tf.float32, shape=[None, self.img_size, self.img_size, 1])
+        self.y_input = tf.placeholder(tf.int64, shape=None)
 
     def _build_model(self, inputs):
         raise NotImplementedError('Here is your model definition')
